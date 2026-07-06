@@ -1,0 +1,26 @@
+%% Score Board module — component overview (see ../README.md §3)
+flowchart LR
+    subgraph Client["Browser / Game Client"]
+        UI[Score Board UI]
+    end
+
+    subgraph Server["Application Server (N instances)"]
+        API[REST API<br/>score endpoints]
+        WS[WebSocket Gateway<br/>leaderboard channel]
+        SVC[Score Service<br/>validation + anti-cheat]
+    end
+
+    subgraph Data["Data layer"]
+        REDIS[(Redis<br/>ZSET leaderboard<br/>+ pub/sub + token store)]
+        DB[(SQL DB<br/>scores + score_events<br/>source of truth)]
+    end
+
+    UI -- "1. POST /scores/actions" --> API
+    API --> SVC
+    SVC -- "2. atomic write" --> DB
+    SVC -- "3. ZINCRBY" --> REDIS
+    SVC -- "4. PUBLISH leaderboard.updated" --> REDIS
+    REDIS -- "5. pub/sub" --> WS
+    WS -- "6. push event" --> UI
+    UI -- "GET /scores/leaderboard (initial load)" --> API
+    API -- "ZREVRANGE 0 9" --> REDIS

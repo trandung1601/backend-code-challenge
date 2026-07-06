@@ -1,0 +1,32 @@
+%% Score Board module — core execution flow (see ../README.md §6)
+sequenceDiagram
+    autonumber
+    participant C as Client (user)
+    participant V as Viewers (other clients)
+    participant API as API Server
+    participant R as Redis
+    participant DB as SQL DB
+
+    Note over C,API: Action starts
+    C->>API: POST /actions/start (JWT)
+    API-->>C: 201 { actionToken (signed, TTL 5m) }
+
+    Note over C: User completes the action
+    C->>API: POST /scores/actions { actionToken, idempotencyKey } (JWT)
+
+    API->>API: 1. verify JWT -> userId
+    API->>API: 2. rate limit check
+    API->>API: 3. verify token signature / expiry / owner
+    API->>R: 4. idempotency lookup (idem:key)
+    API->>R: 5. SET NX action_token:nonce (consume once)
+    alt token already consumed / checks fail
+        API-->>C: 403 / 409 / 429 + audit log entry
+    else all checks pass
+        API->>DB: 6-7. TX: UPDATE scores +points, INSERT score_events
+        API->>R: 8. ZINCRBY leaderboard points userId
+        API->>R: 9. PUBLISH leaderboard.updated (if top-10 changed)
+        API-->>C: 200 { newScore, pointsAwarded, rank }
+        R-->>API: pub/sub (all instances)
+        API-->>V: WS push leaderboard.updated { seq, entries[10] }
+        API-->>C: WS push leaderboard.updated { seq, entries[10] }
+    end

@@ -1,0 +1,42 @@
+{
+  "name": "problem2-book-crud",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ExpressJS + TypeScript CRUD API for Books (Prisma + SQLite)",
+  "main": "dist/server.js",
+  "scripts": {
+    "setup": "prisma generate && prisma migrate deploy",
+    "dev": "prisma migrate deploy && tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "prisma migrate deploy && node dist/server.js",
+    "seed": "tsx prisma/seed.ts",
+    "test": "cross-env DATABASE_URL=file:./test.db NODE_ENV=test prisma db push --force-reset --skip-generate && cross-env DATABASE_URL=file:./test.db NODE_ENV=test node --import tsx --test \"tests/**/*.test.ts\""
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.9.0",
+    "@types/supertest": "^6.0.2",
+    "@types/swagger-ui-express": "^4.1.8",
+    "cross-env": "^7.0.3",
+    "prisma": "^5.22.0",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
