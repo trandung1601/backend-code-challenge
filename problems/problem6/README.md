@@ -1,9 +1,31 @@
-# Problem 3 — Score Board API Module Specification
+# Problem 6 — Score Board API Module Specification  <!-- omit in toc -->
 
 > **Audience:** backend engineering team.
 > **Status:** specification only — no code in this folder. This document is the single
 > source of truth for implementing the module; the diagrams are duplicated as editable
 > sources in [`diagrams/`](diagrams/).
+
+## Table of Contents  <!-- omit in toc -->
+
+- [1. Overview](#1-overview)
+	- [Scope](#scope)
+	- [Assumptions](#assumptions)
+- [2. Requirements](#2-requirements)
+	- [Functional](#functional)
+	- [Non-functional](#non-functional)
+- [3. Architecture](#3-architecture)
+	- [Components](#components)
+- [4. API Specification](#4-api-specification)
+	- [4.1 `POST /api/v1/scores/actions` — report a completed action (score increase)](#41-post-apiv1scoresactions--report-a-completed-action-score-increase)
+	- [4.2 `POST /api/v1/actions/start` — obtain an action token](#42-post-apiv1actionsstart--obtain-an-action-token)
+	- [4.3 `GET /api/v1/scores/leaderboard` — top 10](#43-get-apiv1scoresleaderboard--top-10)
+	- [4.4 `GET /api/v1/scores/me` — current user's score and rank](#44-get-apiv1scoresme--current-users-score-and-rank)
+	- [4.5 Live update channel — WebSocket `/ws`](#45-live-update-channel--websocket-ws)
+- [5. Data Model](#5-data-model)
+- [6. Execution Flow](#6-execution-flow)
+- [7. Security & Anti-Cheat (requirement 5)](#7-security--anti-cheat-requirement-5)
+- [8. Additional Comments / Suggested Improvements](#8-additional-comments--suggested-improvements)
+- [9. Definition of Done (for the implementing team)](#9-definition-of-done-for-the-implementing-team)
 
 ## 1. Overview
 

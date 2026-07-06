@@ -10,7 +10,7 @@ workspaces.
 -   :tada: Each problem is isolated and can be developed and tested independently
 -   :tada: A single `npm install` at the root sets up every workspace dependency
 -   :tada: Root-level scripts run setup, tests, and builds for any problem
--   :tada: `problem2` ships as a layered Node/TypeScript CRUD API with Prisma
+-   :tada: `problem5` ships as a layered Node/TypeScript CRUD API with Prisma
 
 ## Table of Contents  <!-- omit in toc -->
 
@@ -28,11 +28,11 @@ workspaces.
 
 ```bash
 npm install
-npm run setup:problem2
+npm run setup:problem5
 ```
 
 Running `npm install` at the repository root installs the workspace
-dependencies for `problems/problem2`. `npm run setup:problem2` then generates
+dependencies for `problems/problem5`. `npm run setup:problem5` then generates
 the Prisma client and applies the committed migrations.
 
 ```text
@@ -41,20 +41,20 @@ backend-code-challenge/
 ├── package-lock.json
 ├── README.md
 └── problems/
-    ├── problem1/
-    ├── problem2/
-    └── problem3/
+    ├── problem4/
+    ├── problem5/
+    └── problem6/
 ```
 
 ## Problems
 
-- `problem1`: algorithm exercise and tests in [problems/problem1](problems/problem1)
-- `problem2`: backend CRUD API in [problems/problem2](problems/problem2)
-- `problem3`: Score Board API module specification in [problems/problem3](problems/problem3)
+- `problem4`: algorithm exercise and tests in [problems/problem4](problems/problem4)
+- `problem5`: backend CRUD API in [problems/problem5](problems/problem5)
+- `problem6`: Score Board API module specification in [problems/problem6](problems/problem6)
 
-`problem2` remains a self-contained Node/TypeScript app with its own
-`package.json`. `problem3` is a documentation-only deliverable: the Score
-Board API module specification ([README.md](problems/problem3/README.md))
+`problem5` remains a self-contained Node/TypeScript app with its own
+`package.json`. `problem6` is a documentation-only deliverable: the Score
+Board API module specification ([README.md](problems/problem6/README.md))
 plus Mermaid diagram sources in `diagrams/`.
 
 ## Building and Testing
@@ -63,24 +63,24 @@ All commands are run from the repository root:
 
 | Command | Description |
 | ------- | ----------- |
-| `npm test` | Run every problem's tests (`problem1` + `problem2`) |
-| `npm run test:problem1` | Run the `problem1` algorithm tests |
-| `npm run setup:problem2` | Generate the Prisma client and apply migrations for `problem2` |
-| `npm run dev:problem2` | Start `problem2` in dev mode (auto-reload via `tsx`) |
-| `npm run test:problem2` | Run the `problem2` API tests |
-| `npm run build:problem2` | Compile `problem2` TypeScript to `dist/` |
-| `npm run start:problem2` | Run the compiled `problem2` server (`dist/server.js`) |
+| `npm test` | Run every problem's tests (`problem4` + `problem5`) |
+| `npm run test:problem4` | Run the `problem4` algorithm tests |
+| `npm run setup:problem5` | Generate the Prisma client and apply migrations for `problem5` |
+| `npm run dev:problem5` | Start `problem5` in dev mode (auto-reload via `tsx`) |
+| `npm run test:problem5` | Run the `problem5` API tests |
+| `npm run build:problem5` | Compile `problem5` TypeScript to `dist/` |
+| `npm run start:problem5` | Run the compiled `problem5` server (`dist/server.js`) |
 
-To run `problem2` in production mode:
+To run `problem5` in production mode:
 
 ```bash
-npm run build:problem2    # compile TypeScript -> problems/problem2/dist/
-npm run start:problem2    # migrate + run the compiled server
+npm run build:problem5    # compile TypeScript -> problems/problem5/dist/
+npm run start:problem5    # migrate + run the compiled server
 ```
 
-> `start:problem2` runs the **already-compiled** `dist/server.js` — it does not compile on
-> the fly. Always run `build:problem2` first (or after any source change). For iterative
-> development use `dev:problem2` instead, which auto-reloads and needs no build step.
+> `start:problem5` runs the **already-compiled** `dist/server.js` — it does not compile on
+> the fly. Always run `build:problem5` first (or after any source change). For iterative
+> development use `dev:problem5` instead, which auto-reloads and needs no build step.
 
 ## Contribution Guidelines
 

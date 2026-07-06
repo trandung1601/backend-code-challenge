@@ -1,4 +1,4 @@
-# Problem 1 — `sum_to_n`
+# Problem 4 — `sum_to_n`  <!-- omit in toc -->
 
 Compute the sum from `1` to `n`:
 
@@ -12,6 +12,19 @@ timing charts**.
 
 > Note: the brief says `n` is *"any integer"*, so all three functions handle negatives
 > symmetrically: `sum_to_n(-5) === -1 + -2 + -3 + -4 + -5 === -15`.
+
+## Table of Contents  <!-- omit in toc -->
+
+- [A quick refresher on "complexity" (Big-O)](#a-quick-refresher-on-complexity-big-o)
+- [Option A — Gauss formula `n(n+1)/2`](#option-a--gauss-formula-nn12)
+- [Option B — `for` loop](#option-b--for-loop)
+- [Option C — Recursion](#option-c--recursion)
+- [Comparison table](#comparison-table)
+- [Timing charts (real measurements)](#timing-charts-real-measurements)
+	- [Bar chart (time at `n = 1,000,000`, log scale)](#bar-chart-time-at-n--1000000-log-scale)
+	- [Trend as `n` grows](#trend-as-n-grows)
+- [Conclusion](#conclusion)
+- [Run & test](#run--test)
 
 ---
 
@@ -173,10 +186,10 @@ xychart-beta
 
 ```bash
 # Run from the repository root
-npm run test:problem1
+npm run test:problem4
 
-# Run only the problem 1 tests
-node --test problems/problem1/index.test.ts
+# Run only the problem 4 tests
+node --test problems/problem4/index.test.ts
 ```
 
 See the tests in [`index.test.ts`](./index.test.ts).

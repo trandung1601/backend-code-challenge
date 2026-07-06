@@ -1,4 +1,4 @@
-# Problem 2 — Book CRUD API (Express + TypeScript + Prisma/SQLite)
+# Problem 5 — Book CRUD API (Express + TypeScript + Prisma/SQLite)  <!-- omit in toc -->
 
 A small REST API to manage **Books** with full CRUD, filtering, pagination, sorting,
 input validation and centralized error handling. Built with **ExpressJS + TypeScript**,
@@ -6,6 +6,24 @@ persisted in **SQLite** through **Prisma ORM**.
 
 > **Why SQLite?** It's a file-based database — no server, no Docker, no external setup.
 > After install, setup is explicit and reproducible with one command.
+
+## Table of Contents  <!-- omit in toc -->
+
+- [Requirements](#requirements)
+- [Configuration](#configuration)
+- [Run the application](#run-the-application)
+	- [Optional: load sample data](#optional-load-sample-data)
+	- [Production build](#production-build)
+	- [Run tests](#run-tests)
+- [Interactive API docs (Swagger)](#interactive-api-docs-swagger)
+- [Data model](#data-model)
+- [API reference](#api-reference)
+	- [1. Create — `POST /api/books`](#1-create--post-apibooks)
+	- [2. List with filters — `GET /api/books`](#2-list-with-filters--get-apibooks)
+	- [3. Get one — `GET /api/books/:id`](#3-get-one--get-apibooksid)
+	- [4. Update — `PATCH /api/books/:id`](#4-update--patch-apibooksid)
+	- [5. Delete — `DELETE /api/books/:id`](#5-delete--delete-apibooksid)
+- [Project structure](#project-structure)
 
 ---
 
@@ -80,14 +98,14 @@ npm start           # migrate + run the compiled server (dist/server.js)
 ### Run tests
 
 ```bash
-npm test            # inside problems/problem2
+npm test            # inside problems/problem5
 ```
 
 From the repository root you can also run:
 
 ```bash
-npm run setup:problem2
-npm run test:problem2
+npm run setup:problem5
+npm run test:problem5
 ```
 
 ---
@@ -265,7 +283,7 @@ Returns `204 No Content`, or `404` if not found.
 ## Project structure
 
 ```
-problem2/
+problem5/
 ├── package.json
 ├── tsconfig.json
 ├── .env.example

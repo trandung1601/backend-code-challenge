@@ -1,7 +1,7 @@
 import path from 'node:path';
 
 /**
- * Filesystem locations anchored to the project root (problems/problem2),
+ * Filesystem locations anchored to the project root (problems/problem5),
  * independent of the process working directory. `__dirname` is src/config
  * in dev (tsx) and dist/config after `tsc`, both two levels below the root.
  */

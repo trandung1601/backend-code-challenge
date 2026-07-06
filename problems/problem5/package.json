@@ -1,5 +1,5 @@
 {
-  "name": "problem2-book-crud",
+  "name": "problem5-book-crud",
   "version": "1.0.0",
   "private": true,
   "description": "ExpressJS + TypeScript CRUD API for Books (Prisma + SQLite)",
