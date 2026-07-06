@@ -1,9 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { BOOK_UPLOADS_DIR } from '../src/config/paths';
 
 const prisma = new PrismaClient();
-const uploadDir = path.resolve(process.cwd(), 'uploads', 'books');
+const uploadDir = BOOK_UPLOADS_DIR;
 
 const placeholderPngBase64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';

@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
-import path from 'node:path';
 import routes from './routes';
+import { UPLOADS_DIR } from './config/paths';
 import { openApiSpec } from './docs/openapi';
 import { notFound, errorHandler } from './middlewares/error.middleware';
 
@@ -15,7 +15,7 @@ export function createApp() {
 
   app.use(cors());
   app.use(express.json({ limit: '3mb' }));
-  app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
+  app.use('/uploads', express.static(UPLOADS_DIR));
 
   app.get('/', (_req, res) => {
     res.json({ message: 'Book CRUD API', resource: '/api/books', docs: '/docs', health: '/health' });

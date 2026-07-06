@@ -1,6 +1,7 @@
 import { z } from 'zod';
+import { SUPPORTED_IMAGE_MIME_TYPES } from '../constants/image';
 
-const imageMimeTypeSchema = z.enum(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const imageMimeTypeSchema = z.enum(SUPPORTED_IMAGE_MIME_TYPES);
 const booleanSchema = z.preprocess((value) => {
   if (value === 'true') return true;
   if (value === 'false') return false;
@@ -33,22 +34,37 @@ function validateImageFields(
       message: 'imageMimeType requires imageBase64',
     });
   }
+
+  // Raw base64 (not a data URL) carries no type information of its own.
+  if (data.imageBase64 && !data.imageMimeType && !/^data:/i.test(data.imageBase64)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['imageMimeType'],
+      message: 'imageMimeType is required when imageBase64 is raw base64',
+    });
+  }
 }
 
 /** Payload to create a book. */
 export const createBookSchema = z.object(bookSchemaShape).superRefine(validateImageFields);
 
-/** Partial update: any subset of the create fields, but at least one. */
-export const updateBookSchema = z.object(bookSchemaShape).partial().superRefine((data, ctx) => {
-  validateImageFields(data, ctx);
+/**
+ * Partial update: any subset of the create fields, but at least one.
+ * `imageUrl: null` is allowed here to clear a book's stored image.
+ */
+export const updateBookSchema = z
+  .object({ ...bookSchemaShape, imageUrl: bookSchemaShape.imageUrl.nullable() })
+  .partial()
+  .superRefine((data, ctx) => {
+    validateImageFields(data, ctx);
 
-  if (Object.keys(data).length === 0) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Provide at least one field to update',
-    });
-  }
-});
+    if (Object.keys(data).length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Provide at least one field to update',
+      });
+    }
+  });
 
 /** Query params for listing with filters, pagination and sorting. */
 export const listBooksQuerySchema = z.object({

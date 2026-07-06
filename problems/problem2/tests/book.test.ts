@@ -5,6 +5,9 @@ import path from 'node:path';
 import request from 'supertest';
 import { createApp } from '../src/app';
 import { prisma } from '../src/config/database';
+import { BOOK_UPLOADS_DIR } from '../src/config/paths';
+
+const storedFilePath = (imageUrl: string) => path.join(BOOK_UPLOADS_DIR, path.basename(imageUrl));
 
 const app = createApp();
 
@@ -147,6 +150,58 @@ test('PATCH /api/books/:id updates fields', async () => {
   assert.equal(res.body.stock, 3);
   assert.equal(res.body.imageUrl, imageUrl);
   assert.equal(res.body.title, sample.title);
+});
+
+test('POST /api/books rejects raw base64 without imageMimeType (400 validation shape)', async () => {
+  const res = await request(app)
+    .post('/api/books')
+    .send({ ...sample, imageUrl: undefined, imageBase64: tinyPngBase64 });
+
+  assert.equal(res.status, 400);
+  assert.equal(res.body.error, 'Validation failed');
+  const fields = res.body.details.map((d: { field: string }) => d.field);
+  assert.ok(fields.includes('imageMimeType'));
+});
+
+test('PATCH /api/books/:id replaces the image and deletes the old stored file', async () => {
+  const created = await request(app)
+    .post('/api/books')
+    .send({ ...sample, imageUrl: undefined, imageBase64: tinyPngBase64, imageMimeType: 'image/png' });
+  const oldPath = storedFilePath(created.body.imageUrl);
+  await assert.doesNotReject(() => access(oldPath));
+
+  const res = await request(app)
+    .patch(`/api/books/${created.body.id}`)
+    .send({ imageBase64: tinyPngBase64, imageMimeType: 'image/png' });
+
+  assert.equal(res.status, 200);
+  assert.notEqual(res.body.imageUrl, created.body.imageUrl);
+  await assert.doesNotReject(() => access(storedFilePath(res.body.imageUrl)));
+  await assert.rejects(() => access(oldPath));
+});
+
+test('PATCH /api/books/:id with imageUrl null clears the image and deletes the file', async () => {
+  const created = await request(app)
+    .post('/api/books')
+    .send({ ...sample, imageUrl: undefined, imageBase64: tinyPngBase64, imageMimeType: 'image/png' });
+  const oldPath = storedFilePath(created.body.imageUrl);
+
+  const res = await request(app).patch(`/api/books/${created.body.id}`).send({ imageUrl: null });
+
+  assert.equal(res.status, 200);
+  assert.equal(res.body.imageUrl, null);
+  await assert.rejects(() => access(oldPath));
+});
+
+test('DELETE /api/books/:id also deletes the stored image file', async () => {
+  const created = await request(app)
+    .post('/api/books')
+    .send({ ...sample, imageUrl: undefined, imageBase64: tinyPngBase64, imageMimeType: 'image/png' });
+  const oldPath = storedFilePath(created.body.imageUrl);
+
+  const del = await request(app).delete(`/api/books/${created.body.id}`);
+  assert.equal(del.status, 204);
+  await assert.rejects(() => access(oldPath));
 });
 
 test('PATCH /api/books/:id rejects empty update body (400)', async () => {

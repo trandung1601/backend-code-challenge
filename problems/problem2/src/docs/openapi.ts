@@ -215,7 +215,12 @@ export const openApiSpec = {
           price: { type: 'number', minimum: 0 },
           stock: { type: 'integer', minimum: 0 },
           category: { type: 'string', minLength: 1 },
-          imageUrl: { type: 'string', format: 'uri' },
+          imageUrl: {
+            type: 'string',
+            format: 'uri',
+            nullable: true,
+            description: 'New external image URL, or null to remove the current image.',
+          },
           imageBase64: {
             type: 'string',
             description: 'Optional replacement image payload. Can be raw base64 or a data URL.',

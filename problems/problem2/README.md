@@ -244,6 +244,15 @@ curl -X PATCH http://localhost:3001/api/books/1 \
 ```
 Returns `200` with the updated book, or `404` if not found.
 
+Replacing an image deletes the previously stored file from `uploads/books/`.
+To remove a book's image without replacing it, send `"imageUrl": null`:
+
+```bash
+curl -X PATCH http://localhost:3001/api/books/1 \
+  -H "Content-Type: application/json" \
+  -d '{"imageUrl":null}'
+```
+
 ### 5. Delete — `DELETE /api/books/:id`
 
 ```bash
@@ -269,7 +278,10 @@ problem2/
 └── src/
     ├── config/
     │   ├── env.ts           # Zod-validated environment variables
+    │   ├── paths.ts         # uploads/project paths (independent of cwd)
     │   └── database.ts      # shared PrismaClient instance
+    ├── constants/
+    │   └── image.ts         # shared image MIME allowlist + size limit
     ├── controllers/
     │   └── book.controller.ts
     ├── services/
@@ -279,8 +291,6 @@ problem2/
     ├── routes/
     │   ├── book.routes.ts
     │   └── index.ts
-    ├── models/
-    │   └── book.model.ts
     ├── types/
     │   └── book.types.ts
     ├── middlewares/

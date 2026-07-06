@@ -1,13 +1,14 @@
 import type { RequestHandler } from 'express';
 import { AppError } from '../utils/AppError';
+import { MAX_IMAGE_BYTES, SUPPORTED_IMAGE_MIME_TYPES } from '../constants/image';
 
 const MAX_MULTIPART_BYTES = 3 * 1024 * 1024;
-const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
-const supportedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const supportedImageTypes = new Set<string>(SUPPORTED_IMAGE_MIME_TYPES);
 
 function getBoundary(contentType: string) {
   const match = /boundary=(?:"([^"]+)"|([^;]+))/i.exec(contentType);
-  return match?.[1] ?? match?.[2];
+  // Unquoted boundaries may pick up trailing whitespace from the header.
+  return match?.[1] ?? match?.[2]?.trim();
 }
 
 function parseContentDisposition(value: string | undefined) {
@@ -114,7 +115,8 @@ export const parseMultipartBookUpload: RequestHandler = async (req, _res, next) 
         if (!filename) continue;
         if (name !== 'image') continue;
 
-        const mimeType = headers['content-type'];
+        // Normalize e.g. "IMAGE/PNG; charset=binary" to "image/png".
+        const mimeType = headers['content-type']?.split(';')[0].trim().toLowerCase() ?? '';
         if (!supportedImageTypes.has(mimeType)) {
           throw new AppError(400, 'image must be jpeg, png, webp, or gif');
         }

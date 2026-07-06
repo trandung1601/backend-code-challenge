@@ -1,7 +1,7 @@
 import type { Prisma } from '@prisma/client';
 import { bookRepository } from '../repositories/book.repository';
 import { AppError } from '../utils/AppError';
-import { saveBookImage } from '../utils/image-storage';
+import { deleteBookImage, saveBookImage } from '../utils/image-storage';
 import type { CreateBookInput, UpdateBookInput, ListBooksQuery } from '../types/book.types';
 
 export const bookService = {
@@ -9,7 +9,13 @@ export const bookService = {
     const { imageBase64, imageMimeType, ...data } = input;
     const imageUrl = imageBase64 ? await saveBookImage({ imageBase64, imageMimeType }) : data.imageUrl;
 
-    return bookRepository.create({ ...data, imageUrl });
+    try {
+      return await bookRepository.create({ ...data, imageUrl });
+    } catch (err) {
+      // Don't leave the just-written file orphaned if the insert fails.
+      if (imageBase64) await deleteBookImage(imageUrl);
+      throw err;
+    }
   },
 
   async list(query: ListBooksQuery) {
@@ -56,7 +62,7 @@ export const bookService = {
   },
 
   async update(id: number, input: UpdateBookInput) {
-    await this.getById(id);
+    const existing = await this.getById(id);
     const { imageBase64, imageMimeType, ...data } = input;
     const imageUrl = imageBase64 ? await saveBookImage({ imageBase64, imageMimeType }) : data.imageUrl;
 
@@ -64,11 +70,25 @@ export const bookService = {
       data.imageUrl = imageUrl;
     }
 
-    return bookRepository.update(id, data);
+    let book;
+    try {
+      book = await bookRepository.update(id, data);
+    } catch (err) {
+      if (imageBase64) await deleteBookImage(imageUrl);
+      throw err;
+    }
+
+    // Image replaced (or cleared with `imageUrl: null`): drop the old stored file.
+    if (imageUrl !== undefined && existing.imageUrl !== imageUrl) {
+      await deleteBookImage(existing.imageUrl);
+    }
+
+    return book;
   },
 
   async remove(id: number) {
-    await this.getById(id);
+    const book = await this.getById(id);
     await bookRepository.delete(id);
+    await deleteBookImage(book.imageUrl);
   },
 };
