@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SUPPORTED_IMAGE_MIME_TYPES } from '../constants/image';
+import { SUPPORTED_IMAGE_MIME_TYPES } from '../../../constants/image';
 
 const imageMimeTypeSchema = z.enum(SUPPORTED_IMAGE_MIME_TYPES);
 const booleanSchema = z.preprocess((value) => {

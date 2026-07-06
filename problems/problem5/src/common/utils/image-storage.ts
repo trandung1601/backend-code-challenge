@@ -1,14 +1,14 @@
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { AppError } from './AppError';
-import { BOOK_UPLOADS_DIR } from '../config/paths';
+import { AppError } from '../errors/AppError';
+import { BOOK_UPLOADS_DIR } from '../../config/paths';
 import {
   EXTENSIONS_BY_MIME_TYPE,
   MAX_IMAGE_BYTES,
   SUPPORTED_IMAGE_TYPES_MESSAGE,
   type SupportedImageMimeType,
-} from '../constants/image';
+} from '../../constants/image';
 
 const PUBLIC_UPLOAD_PREFIX = '/uploads/books/';
 

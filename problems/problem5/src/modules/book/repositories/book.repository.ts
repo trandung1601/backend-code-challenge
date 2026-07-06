@@ -1,6 +1,6 @@
 import type { Prisma } from '@prisma/client';
-import { prisma } from '../config/database';
-import type { ListBooksQuery } from '../types/book.types';
+import { prisma } from '../../../database';
+import type { ListBooksQuery } from '../dto/book.dto';
 
 interface FindManyWithTotalArgs {
   where: Prisma.BookWhereInput;

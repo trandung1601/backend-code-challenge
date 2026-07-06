@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { AppError } from '../utils/AppError';
+import { AppError } from './AppError';
 
 function isPrismaErrorCode(err: unknown, code: string) {
   return (

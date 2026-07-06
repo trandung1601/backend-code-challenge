@@ -97,8 +97,16 @@ npm start           # migrate + run the compiled server (dist/server.js)
 
 ### Run tests
 
+Tests are split into three tiers under `tests/`:
+
+| Tier | Command | What it covers |
+| ---- | ------- | -------------- |
+| Unit | `npm run test:unit` | Zod validators, image storage, service logic with a mocked repository (no DB) |
+| Integration | `npm run test:integration` | API routes via supertest against the app + a real SQLite test DB |
+| E2E | `npm run test:e2e` | A real HTTP server on an ephemeral port, exercised with `fetch` (routing, static uploads, error shapes) |
+
 ```bash
-npm test            # inside problems/problem5
+npm test            # all tiers, inside problems/problem5
 ```
 
 From the repository root you can also run:
@@ -292,7 +300,9 @@ problem5/
 │   ├── migrations/          # committed migration history
 │   └── seed.ts              # sample data
 ├── tests/
-│   └── book.test.ts         # CRUD + filter tests (node:test + supertest)
+│   ├── unit/                # validators, image storage, service (mocked repository)
+│   ├── integration/         # API tests via supertest + real SQLite test DB
+│   └── e2e/                 # real HTTP server exercised with fetch
 └── src/
     ├── config/
     │   ├── env.ts           # Zod-validated environment variables

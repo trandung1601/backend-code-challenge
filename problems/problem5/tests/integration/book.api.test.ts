@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { access } from 'node:fs/promises';
 import path from 'node:path';
 import request from 'supertest';
-import { createApp } from '../src/app';
-import { prisma } from '../src/config/database';
-import { BOOK_UPLOADS_DIR } from '../src/config/paths';
+import { createApp } from '../../src/app';
+import { prisma } from '../../src/database';
+import { BOOK_UPLOADS_DIR } from '../../src/config/paths';
 
 const storedFilePath = (imageUrl: string) => path.join(BOOK_UPLOADS_DIR, path.basename(imageUrl));
 

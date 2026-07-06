@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express';
-import { AppError } from '../utils/AppError';
+import { AppError } from '../common/errors/AppError';
 import { MAX_IMAGE_BYTES, SUPPORTED_IMAGE_MIME_TYPES } from '../constants/image';
 
 const MAX_MULTIPART_BYTES = 3 * 1024 * 1024;

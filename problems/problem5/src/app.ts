@@ -1,10 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
-import routes from './routes';
+import bookRoutes from './modules/book/routes/book.routes';
 import { UPLOADS_DIR } from './config/paths';
 import { openApiSpec } from './docs/openapi';
-import { notFound, errorHandler } from './middlewares/error.middleware';
+import { notFound, errorHandler } from './common/errors/errorHandler';
 
 /**
  * Build the Express app. Exported as a factory so tests can create a
@@ -29,7 +29,7 @@ export function createApp() {
   app.get('/docs.json', (_req, res) => res.json(openApiSpec));
   app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
 
-  app.use('/api', routes);
+  app.use('/api/books', bookRoutes);
 
   // 404 + centralized error handling (must be last)
   app.use(notFound);

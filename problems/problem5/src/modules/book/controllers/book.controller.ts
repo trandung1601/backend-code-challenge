@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { bookService } from '../services/book.service';
-import { created, noContent, ok } from '../utils/api-response';
-import type { CreateBookInput, UpdateBookInput, ListBooksQuery, IdParam } from '../types/book.types';
+import { created, noContent, ok } from '../../../common/utils/api-response';
+import type { CreateBookInput, UpdateBookInput, ListBooksQuery, IdParam } from '../dto/book.dto';
 
 /**
  * HTTP handlers. Validated values are read from `res.locals`,

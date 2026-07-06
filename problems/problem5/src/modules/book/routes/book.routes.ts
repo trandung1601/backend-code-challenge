@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { bookController } from '../controllers/book.controller';
-import { validate } from '../middlewares/validate.middleware';
-import { parseMultipartBookUpload } from '../middlewares/multipart.middleware';
+import { validate } from '../../../middlewares/validate.middleware';
+import { parseMultipartBookUpload } from '../../../middlewares/multipart.middleware';
 import {
   createBookSchema,
   updateBookSchema,

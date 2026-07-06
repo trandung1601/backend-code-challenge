@@ -1,8 +1,8 @@
 import type { Prisma } from '@prisma/client';
 import { bookRepository } from '../repositories/book.repository';
-import { AppError } from '../utils/AppError';
-import { deleteBookImage, saveBookImage } from '../utils/image-storage';
-import type { CreateBookInput, UpdateBookInput, ListBooksQuery } from '../types/book.types';
+import { AppError } from '../../../common/errors/AppError';
+import { deleteBookImage, saveBookImage } from '../../../common/utils/image-storage';
+import type { CreateBookInput, UpdateBookInput, ListBooksQuery } from '../dto/book.dto';
 
 export const bookService = {
   async create(input: CreateBookInput) {

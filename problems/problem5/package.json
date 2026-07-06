@@ -10,7 +10,10 @@
     "build": "tsc",
     "start": "prisma migrate deploy && node dist/server.js",
     "seed": "tsx prisma/seed.ts",
-    "test": "cross-env DATABASE_URL=file:./test.db NODE_ENV=test prisma db push --force-reset --skip-generate && cross-env DATABASE_URL=file:./test.db NODE_ENV=test node --import tsx --test \"tests/**/*.test.ts\""
+    "test": "cross-env DATABASE_URL=file:./test.db NODE_ENV=test prisma db push --force-reset --skip-generate && cross-env DATABASE_URL=file:./test.db NODE_ENV=test node --import tsx --test --test-concurrency=1 \"tests/**/*.test.ts\"",
+    "test:unit": "cross-env DATABASE_URL=file:./test.db NODE_ENV=test node --import tsx --test \"tests/unit/**/*.test.ts\"",
+    "test:integration": "cross-env DATABASE_URL=file:./test.db NODE_ENV=test prisma db push --force-reset --skip-generate && cross-env DATABASE_URL=file:./test.db NODE_ENV=test node --import tsx --test \"tests/integration/**/*.test.ts\"",
+    "test:e2e": "cross-env DATABASE_URL=file:./test.db NODE_ENV=test prisma db push --force-reset --skip-generate && cross-env DATABASE_URL=file:./test.db NODE_ENV=test node --import tsx --test \"tests/e2e/**/*.test.ts\""
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
