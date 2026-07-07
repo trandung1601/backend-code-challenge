@@ -39,15 +39,15 @@ after(async () => {
 test('service endpoints respond: /, /health and /docs.json', async () => {
   const root = await fetch(baseUrl);
   assert.equal(root.status, 200);
-  assert.equal((await root.json()).resource, '/api/books');
+  assert.equal((await root.json() as any).resource, '/api/books');
 
   const health = await fetch(`${baseUrl}/health`);
   assert.equal(health.status, 200);
-  assert.equal((await health.json()).status, 'ok');
+  assert.equal((await health.json() as any).status, 'ok');
 
   const docs = await fetch(`${baseUrl}/docs.json`);
   assert.equal(docs.status, 200);
-  assert.equal((await docs.json()).openapi, '3.0.3');
+  assert.equal((await docs.json() as any).openapi, '3.0.3');
 });
 
 test('full book lifecycle over HTTP', async () => {
@@ -66,7 +66,7 @@ test('full book lifecycle over HTTP', async () => {
     }),
   });
   assert.equal(createRes.status, 201);
-  const created = await createRes.json();
+  const created = await createRes.json() as any;
   assert.match(created.imageUrl, /^\/uploads\/books\/.+\.png$/);
 
   // The stored image is served publicly.
@@ -77,7 +77,7 @@ test('full book lifecycle over HTTP', async () => {
   // Listing with filters finds it.
   const listRes = await fetch(`${baseUrl}/api/books?category=Testing&minPrice=40`);
   assert.equal(listRes.status, 200);
-  const list = await listRes.json();
+  const list = await listRes.json() as any;
   assert.equal(list.pagination.total, 1);
   assert.equal(list.data[0].id, created.id);
 
@@ -88,7 +88,7 @@ test('full book lifecycle over HTTP', async () => {
     body: JSON.stringify({ price: 13.37, imageUrl: null }),
   });
   assert.equal(patchRes.status, 200);
-  const patched = await patchRes.json();
+  const patched = await patchRes.json() as any;
   assert.equal(patched.price, 13.37);
   assert.equal(patched.imageUrl, null);
 
@@ -111,7 +111,7 @@ test('validation and 404 error shapes over HTTP', async () => {
     body: JSON.stringify({ title: '', price: -1 }),
   });
   assert.equal(badCreate.status, 400);
-  const badBody = await badCreate.json();
+  const badBody = await badCreate.json() as any;
   assert.equal(badBody.error, 'Validation failed');
   assert.ok(Array.isArray(badBody.details));
 
@@ -120,5 +120,5 @@ test('validation and 404 error shapes over HTTP', async () => {
 
   const unknownRoute = await fetch(`${baseUrl}/api/nope`);
   assert.equal(unknownRoute.status, 404);
-  assert.equal((await unknownRoute.json()).error, 'Not Found');
+  assert.equal((await unknownRoute.json() as any).error, 'Not Found');
 });

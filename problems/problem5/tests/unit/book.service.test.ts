@@ -86,7 +86,11 @@ test('list omits filters that were not provided', async (t) => {
 });
 
 test('create forwards the payload (with pass-through imageUrl) to the repository', async (t) => {
-  const create = t.mock.method(bookRepository, 'create', async () => fakeBook);
+  const create = t.mock.method(
+    bookRepository,
+    'create',
+    (async () => fakeBook) as unknown as typeof bookRepository.create,
+  );
 
   await bookService.create({
     title: 'Clean Code',
@@ -104,7 +108,11 @@ test('create forwards the payload (with pass-through imageUrl) to the repository
 
 test('update passes imageUrl null through to clear the image', async (t) => {
   t.mock.method(bookRepository, 'findById', async () => ({ ...fakeBook, imageUrl: null }));
-  const update = t.mock.method(bookRepository, 'update', async () => ({ ...fakeBook, imageUrl: null }));
+  const update = t.mock.method(
+    bookRepository,
+    'update',
+    (async () => ({ ...fakeBook, imageUrl: null })) as unknown as typeof bookRepository.update,
+  );
 
   await bookService.update(1, { imageUrl: null });
 
@@ -114,7 +122,11 @@ test('update passes imageUrl null through to clear the image', async (t) => {
 
 test('update leaves imageUrl untouched when no image field is sent', async (t) => {
   t.mock.method(bookRepository, 'findById', async () => fakeBook);
-  const update = t.mock.method(bookRepository, 'update', async () => fakeBook);
+  const update = t.mock.method(
+    bookRepository,
+    'update',
+    (async () => fakeBook) as unknown as typeof bookRepository.update,
+  );
 
   await bookService.update(1, { price: 9.99 });
 
