@@ -49,6 +49,34 @@ test('POST /api/books creates a book (201)', async () => {
   assert.ok(res.body.id);
 });
 
+test('POST /api/books stores the currency and defaults it to USD when omitted', async () => {
+  const withCurrency = await request(app).post('/api/books').send({ ...sample, currency: 'eur' });
+  assert.equal(withCurrency.status, 201);
+  assert.equal(withCurrency.body.currency, 'EUR');
+
+  const withoutCurrency = await request(app).post('/api/books').send(sample);
+  assert.equal(withoutCurrency.status, 201);
+  assert.equal(withoutCurrency.body.currency, 'USD');
+});
+
+test('POST /api/books rejects an unsupported currency (400)', async () => {
+  const res = await request(app).post('/api/books').send({ ...sample, currency: 'XYZ' });
+  assert.equal(res.status, 400);
+  const fields = res.body.details.map((d: { field: string }) => d.field);
+  assert.ok(fields.includes('currency'));
+});
+
+test('GET /api/books filters by currency', async () => {
+  await request(app).post('/api/books').send({ ...sample, title: 'USD book', currency: 'USD' });
+  await request(app).post('/api/books').send({ ...sample, title: 'EUR book', currency: 'EUR' });
+
+  const res = await request(app).get('/api/books?currency=EUR');
+  assert.equal(res.status, 200);
+  assert.equal(res.body.data.length, 1);
+  assert.equal(res.body.data[0].title, 'EUR book');
+  assert.equal(res.body.data[0].currency, 'EUR');
+});
+
 test('POST /api/books stores a base64 image and returns a public imageUrl', async () => {
   const res = await request(app)
     .post('/api/books')

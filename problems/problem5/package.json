@@ -7,7 +7,7 @@
   "scripts": {
     "setup": "prisma generate && prisma migrate deploy",
     "dev": "prisma migrate deploy && tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "start": "prisma migrate deploy && node dist/server.js",
     "seed": "tsx prisma/seed.ts",
     "test": "cross-env DATABASE_URL=file:./test.db NODE_ENV=test prisma db push --force-reset --skip-generate && cross-env DATABASE_URL=file:./test.db NODE_ENV=test node --import tsx --test --test-concurrency=1 \"tests/**/*.test.ts\"",

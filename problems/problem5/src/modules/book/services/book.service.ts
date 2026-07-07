@@ -19,7 +19,7 @@ export const bookService = {
   },
 
   async list(query: ListBooksQuery) {
-    const { search, category, minPrice, maxPrice, isAvailable, page, limit, sortBy, order } = query;
+    const { search, category, currency, minPrice, maxPrice, isAvailable, page, limit, sortBy, order } = query;
     const where: Prisma.BookWhereInput = {};
 
     // On SQLite, `contains` (LIKE) is already case-insensitive for ASCII.
@@ -27,6 +27,7 @@ export const bookService = {
       where.OR = [{ title: { contains: search } }, { author: { contains: search } }];
     }
     if (category) where.category = category;
+    if (currency) where.currency = currency;
     if (isAvailable !== undefined) where.isAvailable = isAvailable;
 
     if (minPrice !== undefined || maxPrice !== undefined) {

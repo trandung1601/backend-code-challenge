@@ -145,6 +145,7 @@ http://localhost:3001/docs.json
 | `title`       | String    | Required, non-empty                    |
 | `author`      | String    | Required, non-empty                    |
 | `price`       | Float     | `>= 0`                                 |
+| `currency`    | String    | ISO 4217 code; one of `USD, EUR, GBP, JPY, AUD, CAD, CHF, CNY, SGD, INR, VND`; defaults to `USD` |
 | `stock`       | Int       | Integer, `>= 0`                        |
 | `category`    | String    | Required                               |
 | `imageUrl`    | String    | Optional external URL or stored image path |
@@ -174,14 +175,33 @@ Base URL: `http://localhost:3001`
 ```bash
 curl -X POST http://localhost:3001/api/books \
   -H "Content-Type: application/json" \
-  -d '{"title":"Refactoring","author":"Martin Fowler","price":40,"stock":8,"category":"Programming","imageBase64":"iVBORw0KGgo...","imageMimeType":"image/png"}'
+  -d '{
+    "title": "Refactoring",
+    "author": "Martin Fowler",
+    "price": 40,
+    "currency": "USD",
+    "stock": 8,
+    "category": "Programming",
+    "imageBase64": "iVBORw0KGgo...",
+    "imageMimeType": "image/png"
+  }'
 ```
 
 `201 Created`
 ```json
-{ "id": 7, "title": "Refactoring", "author": "Martin Fowler", "price": 40, "stock": 8,
-  "category": "Programming", "imageUrl": "/uploads/books/1720000000000-cover.png",
-  "isAvailable": true, "createdAt": "...", "updatedAt": "..." }
+{
+  "id": 7,
+  "title": "Refactoring",
+  "author": "Martin Fowler",
+  "price": 40,
+  "currency": "USD",
+  "stock": 8,
+  "category": "Programming",
+  "imageUrl": "/uploads/books/1720000000000-cover.png",
+  "isAvailable": true,
+  "createdAt": "...",
+  "updatedAt": "..."
+}
 ```
 
 To store an image, send either:
@@ -207,6 +227,7 @@ curl -X POST http://localhost:3001/api/books \
   -F "title=Refactoring" \
   -F "author=Martin Fowler" \
   -F "price=40" \
+  -F "currency=USD" \
   -F "stock=8" \
   -F "category=Programming" \
   -F "image=@./cover.png;type=image/png"
@@ -232,6 +253,7 @@ Supported query parameters:
 | ------------- | ----------------- | ------------------------------------------------- |
 | `search`      | string            | Case-insensitive match on **title or author**     |
 | `category`    | string            | Exact category match                              |
+| `currency`    | string            | Exact currency match (ISO 4217, e.g. `USD`)       |
 | `minPrice`    | number            | Price `>=` value                                  |
 | `maxPrice`    | number            | Price `<=` value                                  |
 | `isAvailable` | `true` \| `false` | Availability filter                               |
@@ -247,8 +269,27 @@ curl "http://localhost:3001/api/books?category=Programming&minPrice=20&page=1&li
 `200 OK`
 ```json
 {
-  "data": [ /* books */ ],
-  "pagination": { "page": 1, "limit": 5, "total": 2, "totalPages": 1 }
+  "data": [
+    {
+      "id": 3,
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "price": 32.5,
+      "currency": "USD",
+      "stock": 12,
+      "category": "Programming",
+      "imageUrl": "/uploads/books/seed-clean-code.jpg",
+      "isAvailable": true,
+      "createdAt": "...",
+      "updatedAt": "..."
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 5,
+    "total": 1,
+    "totalPages": 1
+  }
 }
 ```
 
@@ -266,7 +307,12 @@ Partial update — send any subset of fields:
 ```bash
 curl -X PATCH http://localhost:3001/api/books/1 \
   -H "Content-Type: application/json" \
-  -d '{"price":99.5,"stock":1,"imageBase64":"iVBORw0KGgo...","imageMimeType":"image/png"}'
+  -d '{
+    "price": 99.5,
+    "stock": 1,
+    "imageBase64": "iVBORw0KGgo...",
+    "imageMimeType": "image/png"
+  }'
 ```
 Returns `200` with the updated book, or `404` if not found.
 
@@ -292,49 +338,56 @@ Returns `204 No Content`, or `404` if not found.
 
 ```
 problem5/
+├── prisma/
+│   ├── migrations/          # committed migration history
+│   ├── seed-images/         # real cover images the seed copies into uploads/books/
+│   ├── schema.prisma        # SQLite datasource + Book model
+│   └── seed.ts              # sample data
+├── src/
+│   ├── common/
+│   │   ├── errors/
+│   │   │   ├── AppError.ts          # typed HTTP error
+│   │   │   └── errorHandler.ts      # centralized error middleware
+│   │   └── utils/
+│   │       ├── api-response.ts
+│   │       └── image-storage.ts     # writes uploaded/base64 images to uploads/books/
+│   ├── config/
+│   │   ├── env.ts           # Zod-validated environment variables
+│   │   └── paths.ts         # uploads/project paths (independent of cwd)
+│   ├── constants/
+│   │   └── image.ts         # shared image MIME allowlist + size limit
+│   ├── database/
+│   │   └── index.ts         # shared PrismaClient instance
+│   ├── docs/
+│   │   └── openapi.ts       # OpenAPI 3.0 spec (served via Swagger UI at /docs)
+│   ├── middlewares/
+│   │   ├── multipart.middleware.ts  # parses multipart/form-data image uploads
+│   │   └── validate.middleware.ts
+│   ├── modules/
+│   │   └── book/
+│   │       ├── controllers/
+│   │       │   └── book.controller.ts
+│   │       ├── dto/
+│   │       │   └── book.dto.ts
+│   │       ├── repositories/
+│   │       │   └── book.repository.ts
+│   │       ├── routes/
+│   │       │   └── book.routes.ts
+│   │       ├── services/
+│   │       │   └── book.service.ts
+│   │       └── validators/
+│   │           └── book.validator.ts
+│   ├── app.ts               # Express app factory (middleware + routes)
+│   └── server.ts            # entry point (listen + graceful shutdown)
+├── tests/
+│   ├── e2e/                 # real HTTP server exercised with fetch
+│   ├── helpers/             # shared test cleanup (rows + upload files)
+│   ├── integration/         # API tests via supertest + real SQLite test DB
+│   └── unit/                # validators, image storage, service (mocked repository)
+├── .env.example
 ├── package.json
 ├── tsconfig.json
-├── .env.example
-├── prisma/
-│   ├── schema.prisma        # SQLite datasource + Book model
-│   ├── migrations/          # committed migration history
-│   └── seed.ts              # sample data
-├── tests/
-│   ├── unit/                # validators, image storage, service (mocked repository)
-│   ├── integration/         # API tests via supertest + real SQLite test DB
-│   └── e2e/                 # real HTTP server exercised with fetch
-└── src/
-    ├── config/
-    │   ├── env.ts           # Zod-validated environment variables
-    │   ├── paths.ts         # uploads/project paths (independent of cwd)
-    │   └── database.ts      # shared PrismaClient instance
-    ├── constants/
-    │   └── image.ts         # shared image MIME allowlist + size limit
-    ├── controllers/
-    │   └── book.controller.ts
-    ├── services/
-    │   └── book.service.ts
-    ├── repositories/
-    │   └── book.repository.ts
-    ├── routes/
-    │   ├── book.routes.ts
-    │   └── index.ts
-    ├── types/
-    │   └── book.types.ts
-    ├── middlewares/
-    │   ├── error.middleware.ts
-    │   ├── multipart.middleware.ts  # parses multipart/form-data image uploads
-    │   └── validate.middleware.ts
-    ├── validators/
-    │   └── book.validator.ts
-    ├── utils/
-    │   ├── api-response.ts
-    │   ├── image-storage.ts         # writes uploaded/base64 images to uploads/books/
-    │   └── AppError.ts
-    ├── docs/
-    │   └── openapi.ts       # OpenAPI 3.0 spec (served via Swagger UI at /docs)
-    ├── app.ts               # Express app factory (middleware + routes)
-    └── server.ts            # entry point (listen + graceful shutdown)
+└── README.md
 ```
 
 **Design notes**

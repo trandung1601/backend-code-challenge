@@ -44,6 +44,7 @@ export const openApiSpec = {
         parameters: [
           { name: 'search', in: 'query', schema: { type: 'string' }, description: 'Match title OR author (case-insensitive)' },
           { name: 'category', in: 'query', schema: { type: 'string' }, description: 'Exact category match' },
+          { name: 'currency', in: 'query', schema: { type: 'string', enum: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'SGD', 'INR', 'VND'] }, description: 'Exact currency match (ISO 4217)' },
           { name: 'minPrice', in: 'query', schema: { type: 'number', minimum: 0 }, description: 'Price >= value' },
           { name: 'maxPrice', in: 'query', schema: { type: 'number', minimum: 0 }, description: 'Price <= value' },
           { name: 'isAvailable', in: 'query', schema: { type: 'boolean' }, description: 'Availability filter' },
@@ -85,6 +86,7 @@ export const openApiSpec = {
                 title: 'Refactoring',
                 author: 'Martin Fowler',
                 price: 40,
+                currency: 'USD',
                 stock: 8,
                 category: 'Programming',
                 imageBase64: 'iVBORw0KGgo...',
@@ -152,6 +154,7 @@ export const openApiSpec = {
           title: { type: 'string', example: 'Clean Code' },
           author: { type: 'string', example: 'Robert C. Martin' },
           price: { type: 'number', example: 32.5 },
+          currency: { type: 'string', example: 'USD' },
           stock: { type: 'integer', example: 12 },
           category: { type: 'string', example: 'Programming' },
           imageUrl: { type: 'string', nullable: true, example: '/uploads/books/cover.png' },
@@ -167,6 +170,13 @@ export const openApiSpec = {
           title: { type: 'string', minLength: 1, example: 'Refactoring' },
           author: { type: 'string', minLength: 1, example: 'Martin Fowler' },
           price: { type: 'number', minimum: 0, example: 40 },
+          currency: {
+            type: 'string',
+            enum: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'SGD', 'INR', 'VND'],
+            default: 'USD',
+            description: 'ISO 4217 currency code for the price. Defaults to USD.',
+            example: 'USD',
+          },
           stock: { type: 'integer', minimum: 0, example: 8 },
           category: { type: 'string', minLength: 1, example: 'Programming' },
           imageUrl: { type: 'string', format: 'uri', example: 'https://example.com/images/refactoring.jpg' },
@@ -191,6 +201,13 @@ export const openApiSpec = {
           title: { type: 'string', minLength: 1, example: 'Refactoring' },
           author: { type: 'string', minLength: 1, example: 'Martin Fowler' },
           price: { type: 'number', minimum: 0, example: 40 },
+          currency: {
+            type: 'string',
+            enum: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'SGD', 'INR', 'VND'],
+            default: 'USD',
+            description: 'ISO 4217 currency code for the price. Defaults to USD.',
+            example: 'USD',
+          },
           stock: { type: 'integer', minimum: 0, example: 8 },
           category: { type: 'string', minLength: 1, example: 'Programming' },
           image: {
@@ -213,6 +230,11 @@ export const openApiSpec = {
           title: { type: 'string', minLength: 1 },
           author: { type: 'string', minLength: 1 },
           price: { type: 'number', minimum: 0 },
+          currency: {
+            type: 'string',
+            enum: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'SGD', 'INR', 'VND'],
+            description: 'ISO 4217 currency code for the price.',
+          },
           stock: { type: 'integer', minimum: 0 },
           category: { type: 'string', minLength: 1 },
           imageUrl: {
@@ -240,6 +262,11 @@ export const openApiSpec = {
           title: { type: 'string', minLength: 1 },
           author: { type: 'string', minLength: 1 },
           price: { type: 'number', minimum: 0 },
+          currency: {
+            type: 'string',
+            enum: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'SGD', 'INR', 'VND'],
+            description: 'ISO 4217 currency code for the price.',
+          },
           stock: { type: 'integer', minimum: 0 },
           category: { type: 'string', minLength: 1 },
           image: {

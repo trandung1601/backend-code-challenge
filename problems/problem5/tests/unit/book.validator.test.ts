@@ -40,6 +40,24 @@ test('createBookSchema coerces string numbers and booleans (multipart form field
   assert.equal(result.data?.isAvailable, true);
 });
 
+test('createBookSchema accepts a currency and normalizes it to upper case', () => {
+  const result = createBookSchema.safeParse({ ...validBook, currency: 'eur' });
+  assert.equal(result.success, true);
+  assert.equal(result.data?.currency, 'EUR');
+});
+
+test('createBookSchema leaves currency undefined when omitted (DB default applies)', () => {
+  const result = createBookSchema.safeParse(validBook);
+  assert.equal(result.success, true);
+  assert.equal(result.data?.currency, undefined);
+});
+
+test('createBookSchema rejects an unsupported currency', () => {
+  const result = createBookSchema.safeParse({ ...validBook, currency: 'XYZ' });
+  assert.equal(result.success, false);
+  assert.ok(failedFields(result).includes('currency'));
+});
+
 test('createBookSchema rejects missing/invalid fields with per-field issues', () => {
   const result = createBookSchema.safeParse({
     title: '',
@@ -109,12 +127,14 @@ test('listBooksQuerySchema applies defaults', () => {
 
 test('listBooksQuerySchema coerces query-string values', () => {
   const result = listBooksQuerySchema.parse({
+    currency: 'gbp',
     minPrice: '10',
     maxPrice: '50.5',
     isAvailable: 'false',
     page: '2',
     limit: '5',
   });
+  assert.equal(result.currency, 'GBP');
   assert.equal(result.minPrice, 10);
   assert.equal(result.maxPrice, 50.5);
   assert.equal(result.isAvailable, false);

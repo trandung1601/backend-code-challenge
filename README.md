@@ -28,22 +28,21 @@ workspaces.
 
 ```bash
 npm install
-npm run setup:problem5
 ```
 
-Running `npm install` at the repository root installs the workspace
-dependencies for `problems/problem5`. `npm run setup:problem5` then generates
-the Prisma client and applies the committed migrations.
+Running `npm install` at the repository root installs the dependencies for
+every workspace. For running and setting up each problem, please read that
+problem's own README.
 
 ```text
 backend-code-challenge/
+├── problems/
+│   ├── problem4/
+│   ├── problem5/
+│   └── problem6/
 ├── package.json
 ├── package-lock.json
-├── README.md
-└── problems/
-    ├── problem4/
-    ├── problem5/
-    └── problem6/
+└── README.md
 ```
 
 ## Problems
@@ -52,7 +51,7 @@ backend-code-challenge/
 - `problem5`: backend CRUD API in [problems/problem5](problems/problem5)
 - `problem6`: Score Board API module specification in [problems/problem6](problems/problem6)
 
-`problem5` remains a self-contained Node/TypeScript app with its own
+`problem5` is a self-contained Node/TypeScript app with its own
 `package.json`. `problem6` is a documentation-only deliverable: the Score
 Board API module specification ([README.md](problems/problem6/README.md))
 plus Mermaid diagram sources in `diagrams/`.

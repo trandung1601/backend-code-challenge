@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { SUPPORTED_IMAGE_MIME_TYPES } from '../../../constants/image';
+import { SUPPORTED_CURRENCIES, SUPPORTED_CURRENCIES_MESSAGE } from '../../../constants/currency';
 
 const imageMimeTypeSchema = z.enum(SUPPORTED_IMAGE_MIME_TYPES);
 const booleanSchema = z.preprocess((value) => {
@@ -8,10 +9,20 @@ const booleanSchema = z.preprocess((value) => {
   return value;
 }, z.boolean());
 
+// ISO 4217 code, accepted case-insensitively and normalized to upper case.
+const currencySchema = z.preprocess(
+  (value) => (typeof value === 'string' ? value.trim().toUpperCase() : value),
+  z.enum(SUPPORTED_CURRENCIES, {
+    errorMap: () => ({ message: `currency must be one of: ${SUPPORTED_CURRENCIES_MESSAGE}` }),
+  }),
+);
+
 const bookSchemaShape = {
   title: z.string().trim().min(1, 'title is required'),
   author: z.string().trim().min(1, 'author is required'),
   price: z.coerce.number({ invalid_type_error: 'price must be a number' }).nonnegative('price must be >= 0'),
+  // Optional on input: the database defaults the currency to USD when omitted.
+  currency: currencySchema.optional(),
   stock: z
     .coerce.number({ invalid_type_error: 'stock must be a number' })
     .int('stock must be an integer')
@@ -70,6 +81,7 @@ export const updateBookSchema = z
 export const listBooksQuerySchema = z.object({
   search: z.string().trim().optional(),
   category: z.string().trim().optional(),
+  currency: currencySchema.optional(),
   minPrice: z.coerce.number().nonnegative().optional(),
   maxPrice: z.coerce.number().nonnegative().optional(),
   isAvailable: z
