@@ -4,6 +4,7 @@ import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { createApp } from '../../src/app';
 import { prisma } from '../../src/database';
+import { snapshotUploads, cleanupTestData } from '../helpers/cleanup';
 
 /**
  * End-to-end: a real HTTP server on an ephemeral port, exercised with fetch
@@ -13,11 +14,13 @@ import { prisma } from '../../src/database';
 
 let server: Server;
 let baseUrl: string;
+let uploadsSnapshot: Set<string>;
 
 const tinyPngBase64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
 before(async () => {
+  uploadsSnapshot = await snapshotUploads();
   await prisma.book.deleteMany();
   server = createApp().listen(0);
   await new Promise<void>((resolve) => server.once('listening', resolve));
@@ -28,6 +31,8 @@ after(async () => {
   await new Promise<void>((resolve, reject) =>
     server.close((err) => (err ? reject(err) : resolve())),
   );
+  // Wipe rows and any upload file the tests created, then disconnect.
+  await cleanupTestData(uploadsSnapshot);
   await prisma.$disconnect();
 });
 

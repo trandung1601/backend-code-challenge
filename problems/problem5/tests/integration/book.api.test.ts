@@ -6,10 +6,12 @@ import request from 'supertest';
 import { createApp } from '../../src/app';
 import { prisma } from '../../src/database';
 import { BOOK_UPLOADS_DIR } from '../../src/config/paths';
+import { snapshotUploads, cleanupTestData } from '../helpers/cleanup';
 
 const storedFilePath = (imageUrl: string) => path.join(BOOK_UPLOADS_DIR, path.basename(imageUrl));
 
 const app = createApp();
+let uploadsSnapshot: Set<string>;
 
 const sample = {
   title: 'Test Driven Development',
@@ -24,6 +26,7 @@ const tinyPngBase64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
 before(async () => {
+  uploadsSnapshot = await snapshotUploads();
   await prisma.book.deleteMany();
 });
 
@@ -32,6 +35,8 @@ beforeEach(async () => {
 });
 
 after(async () => {
+  // Wipe rows and any upload file the tests created, then disconnect.
+  await cleanupTestData(uploadsSnapshot);
   await prisma.$disconnect();
 });
 

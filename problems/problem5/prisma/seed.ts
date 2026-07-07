@@ -1,13 +1,15 @@
 import { PrismaClient } from '@prisma/client';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { BOOK_UPLOADS_DIR } from '../src/config/paths';
 
 const prisma = new PrismaClient();
 const uploadDir = BOOK_UPLOADS_DIR;
 
-const placeholderPngBase64 =
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+// Real book-cover images committed under prisma/seed-images/ are copied into
+// uploads/books/ at seed time, so seeded books show an actual cover instead of
+// a blank placeholder pixel. `uploads/` is gitignored, hence the committed copy.
+const seedImagesDir = path.join(__dirname, 'seed-images');
 
 const books = [
   {
@@ -16,7 +18,7 @@ const books = [
     price: 32.5,
     stock: 12,
     category: 'Programming',
-    imageFile: 'seed-clean-code.png',
+    imageFile: 'seed-clean-code.jpg',
     isAvailable: true,
   },
   {
@@ -25,7 +27,7 @@ const books = [
     price: 28.0,
     stock: 7,
     category: 'Programming',
-    imageFile: 'seed-the-pragmatic-programmer.png',
+    imageFile: 'seed-the-pragmatic-programmer.jpg',
     isAvailable: true,
   },
   {
@@ -34,7 +36,7 @@ const books = [
     price: 18.99,
     stock: 0,
     category: 'History',
-    imageFile: 'seed-sapiens.png',
+    imageFile: 'seed-sapiens.jpg',
     isAvailable: false,
   },
   {
@@ -43,7 +45,7 @@ const books = [
     price: 21.75,
     stock: 25,
     category: 'Self-Help',
-    imageFile: 'seed-atomic-habits.png',
+    imageFile: 'seed-atomic-habits.jpg',
     isAvailable: true,
   },
   {
@@ -52,7 +54,7 @@ const books = [
     price: 15.4,
     stock: 5,
     category: 'Science Fiction',
-    imageFile: 'seed-dune.png',
+    imageFile: 'seed-dune.jpg',
     isAvailable: true,
   },
   {
@@ -61,7 +63,7 @@ const books = [
     price: 12.0,
     stock: 3,
     category: 'Fantasy',
-    imageFile: 'seed-the-hobbit.png',
+    imageFile: 'seed-the-hobbit.jpg',
     isAvailable: true,
   },
 ];
@@ -73,7 +75,7 @@ async function main() {
 
   for (const book of books) {
     const { imageFile, ...data } = book;
-    await writeFile(path.join(uploadDir, imageFile), Buffer.from(placeholderPngBase64, 'base64'));
+    await copyFile(path.join(seedImagesDir, imageFile), path.join(uploadDir, imageFile));
     await prisma.book.create({
       data: {
         ...data,
