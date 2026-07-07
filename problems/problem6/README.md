@@ -173,12 +173,27 @@ Standard error body: `{ "error": { "code": "ACTION_TOKEN_USED", "message": "..."
 7. In one DB transaction: `UPDATE scores SET score = score + :points`, insert a
    `score_events` audit row.
 8. `ZINCRBY leaderboard :points :userId` in Redis.
-9. If the top 10 changed, `PUBLISH leaderboard.updated <payload>`.
+9. If the top 10 changed, `INCR leaderboard:seq`, then
+   `PUBLISH leaderboard.updated <payload>` where the payload is the full top-10
+   snapshot plus the new `seq` (so every relaying instance emits identical, ordered
+   frames without re-reading the ZSET).
 
 ### 4.2 `POST /api/v1/actions/start` — obtain an action token
 
 Called (by the client or by the existing action subsystem) when the user **begins**
 an action. Returns the single-use token that must accompany the completion call.
+
+**Request**
+
+```jsonc
+{
+  "actionType": "quiz.answer"   // must be a key in the server-side points config; rejected with 422 otherwise
+}
+```
+
+The server embeds this `actionType` in the signed token; the completion pipeline
+(§4.1 step 6) reads the point value from config keyed by it, so the client can never
+choose its own reward.
 
 ```jsonc
 // Response 201
@@ -207,6 +222,11 @@ Public (JWT optional). Served from the Redis ZSET.
 }
 ```
 
+`displayName` is **not** in the ZSET (which stores `userId → score` only). To keep
+this path Redis-only (per §9), resolve names from a Redis hash `user:name`
+(`userId → displayName`), populated on user create/rename and lazily backfilled from
+SQL on a cache miss. Only the ≤ 10 returned users are looked up.
+
 ### 4.4 `GET /api/v1/scores/me` — current user's score and rank
 
 ```jsonc
@@ -234,6 +254,10 @@ Public (JWT optional). Served from the Redis ZSET.
 - **Reconnect semantics:** on (re)connect the client re-fetches
   `GET /scores/leaderboard` (or the server sends a snapshot as the first frame);
   `seq` lets clients drop out-of-order/duplicate frames.
+- **`seq` is global, not per-instance.** It is produced by a single Redis
+  `INCR leaderboard:seq` at publish time (step 9), *before* fan-out, so the ordering
+  is consistent for every client regardless of which instance relays the frame.
+  A per-instance counter would break dedupe across N servers (N5).
 - **Scale-out:** every server instance subscribes to the Redis `leaderboard.updated`
   channel and relays to its local sockets, so clients may be connected to any
   instance (N5).
@@ -271,6 +295,10 @@ erDiagram
   double-crediting even if the Redis checks race.
 - Redis keys:
   - `leaderboard` — ZSET, member = `userId`, score = total score.
+  - `user:name` — hash `userId → displayName`, so the leaderboard read path stays
+    Redis-only (see §4.3).
+  - `leaderboard:seq` — integer, `INCR`-ed once per broadcast to give every
+    `leaderboard.updated` frame a globally monotonic `seq` (see §4.5).
   - `action_token:<nonce>` — `SET NX EX <ttl>`, marks a token consumed.
   - `idem:<key>` — cached response for idempotent replay (TTL 24 h).
 
